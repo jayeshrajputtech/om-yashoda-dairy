@@ -66,7 +66,9 @@ function loadProductsFromJSON() {
     try {
         const productsPath = join(__dirname, '../data/products.json');
         const productsData = readFileSync(productsPath, 'utf8');
-        const products = JSON.parse(productsData);
+        const parsedData = JSON.parse(productsData);
+        // Handle both array and object wrapper structure
+        const products = Array.isArray(parsedData) ? parsedData : (parsedData.products || []);
 
         console.log(`📦 Loaded ${products.length} products from JSON`);
         return products;
