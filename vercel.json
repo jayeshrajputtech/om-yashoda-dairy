@@ -1,11 +1,5 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "api/**/*.js",
-            "use": "@vercel/node"
-        }
-    ],
     "headers": [
         {
             "source": "/(.*)",
@@ -32,8 +26,5 @@
                 }
             ]
         }
-    ],
-    "env": {
-        "NODE_VERSION": "18"
-    }
+    ]
 }
