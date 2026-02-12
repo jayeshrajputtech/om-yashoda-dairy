@@ -1,6 +1,6 @@
 {
   "name": "om-yashoda-dairy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Modern dairy shop website for OM Yashoda Dairy with Firebase authentication and real-time order notifications",
   "type": "module",
   "scripts": {
