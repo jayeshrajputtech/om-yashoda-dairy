@@ -1,0 +1,42 @@
+{
+  "name": "om-yashoda-dairy",
+  "version": "1.0.0",
+  "description": "Modern dairy shop website for OM Yashoda Dairy with Firebase authentication and real-time order notifications",
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 3000",
+    "dev:vercel": "vercel dev",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "vercel --prod",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "echo 'Tests will be added'",
+    "release:patch": "npm version patch && git push && git push --tags",
+    "release:minor": "npm version minor && git push && git push --tags",
+    "release:major": "npm version major && git push && git push --tags"
+  },
+  "keywords": [
+    "dairy",
+    "ecommerce",
+    "firebase",
+    "serverless"
+  ],
+  "author": "OM Yashoda Dairy",
+  "license": "MIT",
+  "dependencies": {
+    "firebase": "^10.8.0",
+    "firebase-admin": "^12.0.0",
+    "resend": "^3.0.0",
+    "twilio": "^4.20.0"
+  },
+  "devDependencies": {
+    "vercel": "^33.4.1",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

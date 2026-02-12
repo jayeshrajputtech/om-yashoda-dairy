@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Order confirmation - OM Yashoda Dairy">
+    <title>Order Confirmed - OM Yashoda Dairy</title>
+
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥛</text></svg>">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/pages.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🥛</span>
+                <span>OM Yashoda Dairy</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Confirmation Section -->
+    <section class="section">
+        <div class="confirmation-container">
+            <!-- Success Icon -->
+            <svg class="success-icon" viewBox="0 0 80 80" fill="none">
+                <circle cx="40" cy="40" r="38" stroke="currentColor" stroke-width="4" />
+                <path d="M25 40l10 10 20-20" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+
+            <h1 class="confirmation-title">Order Confirmed!</h1>
+
+            <p
+                style="font-size: var(--font-size-lg); color: var(--color-text-secondary); margin-bottom: var(--spacing-6);">
+                Thank you for your order. We've received it and will prepare it for delivery.
+            </p>
+
+            <div class="order-id" id="order-id-display">
+                <!-- Order ID will be loaded here -->
+            </div>
+
+            <div class="alert alert-success"
+                style="text-align: left; max-width: 500px; margin: 0 auto var(--spacing-8);">
+                <strong>What happens next?</strong><br>
+                • You'll receive a WhatsApp confirmation shortly<br>
+                • We'll prepare your order fresh<br>
+                • Delivery during your selected time slot<br>
+                • Pay cash on delivery
+            </div>
+
+            <div class="order-details" id="order-details">
+                <!-- Order details will be loaded here -->
+            </div>
+
+            <div
+                style="display: flex; gap: var(--spacing-4); justify-content: center; margin-top: var(--spacing-8); flex-wrap: wrap;">
+                <a href="/" class="btn btn-primary btn-lg">Back to Home</a>
+                <a href="/products.html" class="btn btn-outline btn-lg">Continue Shopping</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 OM Yashoda Dairy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script type="module">
+        import { DatabaseService } from '/js/firebase-config.js';
+        import { formatCurrency, formatDateTime, getQueryParam } from '/js/utils.js';
+
+        // Get order ID from URL
+        const orderId = getQueryParam('orderId');
+
+        if (!orderId) {
+            document.querySelector('.confirmation-container').innerHTML = `
+        <div class="empty-state">
+          <h2>No Order Found</h2>
+          <p>We couldn't find your order. Please check your email or WhatsApp for order details.</p>
+          <a href="/" class="btn btn-primary">Back to Home</a>
+        </div>
+      `;
+        } else {
+            // Display order ID
+            document.getElementById('order-id-display').textContent = orderId;
+
+            // Try to load order details from Firestore
+            try {
+                const order = await DatabaseService.getOrder(orderId);
+
+                if (order) {
+                    const detailsHTML = `
+            <h3 style="margin-bottom: var(--spacing-4);">Order Details</h3>
+            
+            <div style="margin-bottom: var(--spacing-4);">
+              <h4 style="margin-bottom: var(--spacing-2); color: var(--color-text-secondary); font-size: var(--font-size-sm);">Customer</h4>
+              <p style="margin-bottom: var(--spacing-1);"><strong>${order.customer.name}</strong></p>
+              <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-1);">${order.customer.phone}</p>
+              <p style="color: var(--color-text-secondary);">${order.customer.address}</p>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div style="margin-bottom: var(--spacing-4);">
+              <h4 style="margin-bottom: var(--spacing-2); color: var(--color-text-secondary); font-size: var(--font-size-sm);">Items</h4>
+              ${order.items.map(item => `
+                <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-2);">
+                  <span>${item.productName} (${item.quantity}x)</span>
+                  <span>${formatCurrency(item.subtotal)}</span>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-2);">
+                <span>Subtotal</span>
+                <span>${formatCurrency(order.subtotal)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-2);">
+                <span>Delivery</span>
+                <span>${order.deliveryCharge === 0 ? 'FREE' : formatCurrency(order.deliveryCharge)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-primary);">
+                <span>Total</span>
+                <span>${formatCurrency(order.total)}</span>
+              </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-2);">
+                <span style="color: var(--color-text-secondary);">Delivery Slot</span>
+                <span><strong>${order.deliverySlot}</strong></span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--color-text-secondary);">Payment Method</span>
+                <span><strong>Cash on Delivery</strong></span>
+              </div>
+            </div>
+          `;
+
+                    document.getElementById('order-details').innerHTML = detailsHTML;
+                }
+            } catch (error) {
+                console.error('Error loading order details:', error);
+                // Order ID is still displayed, just details couldn't be loaded
+            }
+        }
+    </script>
+</body>
+
+</html>

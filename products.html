@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Browse our complete range of fresh dairy products - ghee, paneer, milk, dahi, and more.">
+    <title>Products - OM Yashoda Dairy</title>
+
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥛</text></svg>">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/pages.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🥛</span>
+                <span>OM Yashoda Dairy</span>
+            </a>
+
+            <nav class="nav-menu">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/products.html" class="nav-link active">Products</a>
+                <a href="/#about" class="nav-link">About</a>
+                <a href="/#contact" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button id="auth-btn" class="btn btn-outline btn-sm">Login</button>
+                <a href="/cart.html" class="cart-icon-wrapper">
+                    <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m2-9h10m0 0l2 9m-2-9v9m-10 0a1 1 0 100 2 1 1 0 000-2zm10 0a1 1 0 100 2 1 1 0 000-2z" />
+                    </svg>
+                    <span class="cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Products Section -->
+    <section class="section">
+        <div class="container">
+            <div class="products-header">
+                <h1 class="products-title">Our Products</h1>
+
+                <!-- Search Bar -->
+                <div class="search-bar" style="position: relative;">
+                    <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="9" r="6" />
+                        <path d="M14 14l4 4" />
+                    </svg>
+                    <input type="text" id="search-input" class="search-input"
+                        placeholder="Search products (English, Hindi, Marathi)..." autocomplete="off" />
+                </div>
+
+                <!-- Category Filters -->
+                <div id="category-filters" class="products-filters">
+                    <!-- Filters will be loaded by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Products will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>OM Yashoda Dairy</h3>
+                    <p>Your trusted source for fresh, pure dairy products in Kalyan West.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <div class="footer-links">
+                        <a href="/">Home</a>
+                        <a href="/products.html">Products</a>
+                        <a href="/cart.html">Cart</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <div class="footer-links">
+                        <a href="tel:+919320056114">+91 9320056114</a>
+                        <p>Kalyan West, Maharashtra</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 OM Yashoda Dairy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script type="module">
+        import { CONFIG } from '/js/config.js';
+        import { AuthService } from '/js/firebase-config.js';
+        import {
+            fetchProducts,
+            filterByCategory,
+            searchProducts,
+            renderProductGrid,
+            renderCategoryFilters
+        } from '/js/products.js';
+        import { addToCart, updateCartBadge } from '/js/cart.js';
+        import { debounce, updateLastActivity } from '/js/utils.js';
+
+        let allProducts = [];
+        let currentCategory = 'all';
+
+        // Update cart badge
+        updateCartBadge();
+        updateLastActivity();
+
+        // Load products
+        async function loadProducts() {
+            try {
+                allProducts = await fetchProducts();
+                displayProducts();
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Display products based on current filters
+        function displayProducts() {
+            let filtered = filterByCategory(allProducts, currentCategory);
+
+            const searchQuery = document.getElementById('search-input').value;
+            if (searchQuery) {
+                filtered = searchProducts(filtered, searchQuery);
+            }
+
+            renderProductGrid(filtered, 'products-container', 'en');
+        }
+
+        // Load category filters
+        async function loadFilters() {
+            await renderCategoryFilters('category-filters', currentCategory, 'en');
+        }
+
+        // Handle category filter clicks
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.btn-filter')) {
+                const button = e.target.closest('.btn-filter');
+                currentCategory = button.dataset.category;
+
+                // Update active state
+                document.querySelectorAll('.btn-filter').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                button.classList.add('active');
+
+                displayProducts();
+            }
+
+            // Handle add to cart
+            if (e.target.closest('.btn-add-to-cart')) {
+                const button = e.target.closest('.btn-add-to-cart');
+                const productId = button.dataset.productId;
+
+                if (productId) {
+                    addToCart(productId, 1);
+                }
+            }
+        });
+
+        // Handle search input
+        const searchInput = document.getElementById('search-input');
+        const debouncedSearch = debounce(() => {
+            displayProducts();
+        }, 300);
+
+        searchInput.addEventListener('input', debouncedSearch);
+
+        // Auth button handler
+        const authBtn = document.getElementById('auth-btn');
+
+        AuthService.onAuthChange((user) => {
+            if (user) {
+                authBtn.textContent = user.displayName || 'Account';
+                authBtn.classList.remove('btn-outline');
+                authBtn.classList.add('btn-primary');
+            } else {
+                authBtn.textContent = 'Login';
+                authBtn.classList.remove('btn-primary');
+                authBtn.classList.add('btn-outline');
+            }
+        });
+
+        authBtn.addEventListener('click', () => {
+            const user = AuthService.getCurrentUser();
+            if (user) {
+                if (confirm('Do you want to logout?')) {
+                    AuthService.logout();
+                }
+            } else {
+                window.location.href = '/checkout.html';
+            }
+        });
+
+        // Initialize
+        loadProducts();
+        loadFilters();
+    </script>
+</body>
+
+</html>

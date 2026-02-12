@@ -1,0 +1,8 @@
+.env
+node_modules
+.vercel
+.git
+*.md
+.eslintrc.json
+.prettierrc
+package-lock.json
