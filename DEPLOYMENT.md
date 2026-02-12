@@ -131,7 +131,7 @@ service cloud.firestore {
 
 ### 4.1 Get Vercel Tokens
 
-1. Go to Vercel → Settings → Tokens
+1. Go to Vercel → Account Settings → Tokens -> Create Token
 2. Create new token: "GitHub Actions"
 3. Copy the token
 
