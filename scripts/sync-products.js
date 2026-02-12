@@ -30,9 +30,16 @@ const __dirname = dirname(__filename);
 console.log('🔧 Initializing Firebase Admin...');
 
 if (!getApps().length) {
-    const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
-        ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-        : null;
+    let serviceAccount = null;
+    try {
+        serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
+            ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+            : null;
+    } catch (e) {
+        console.error('❌ Error parsing FIREBASE_SERVICE_ACCOUNT:', e.message);
+        console.error('⚠️  Ensure the secret contains the raw JSON object, starting with { and ending with }');
+        // Do not log the secret itself for security
+    }
 
     if (serviceAccount) {
         initializeApp({
